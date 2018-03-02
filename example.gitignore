@@ -1,0 +1,12 @@
+*.*
+!*.m
+!*.r
+!*.py
+!*.dat
+!*.Rmd
+backups
+._*
+.DS_STORE
+*_cache*
+*-tikz*
+TestData/*
