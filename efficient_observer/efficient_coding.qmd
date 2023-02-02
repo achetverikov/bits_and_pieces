@@ -1,0 +1,214 @@
+---
+title: "Efficient coding"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, echo = F, message=F, cache = F}
+library(patchwork)
+library(reshape2)
+library(ggplot2)
+library(colorspace)
+library(CircStats)
+library(circhelp)
+library(brms)
+library(apastats)
+
+source('theme.R')
+scale_colour_discrete <- function(...) scale_color_viridis_d(...)
+```
+
+This is a short script to illustrate my problems in implementing Wei & Stocker (2015) approach.
+
+Defining parameters:
+
+```{r}
+kappa_prior <- circhelp:::vm_circ_sd_inverse_deg(60)
+kappa_sensory <- circhelp:::vm_circ_sd_inverse_deg(7)
+
+grid_size <- 3600 # grid for estimating likelihoods
+grid <- seq(-pi, pi, length.out = grid_size)[1:(grid_size-1)]
+grid_step <- diff(grid)[1]
+```
+
+Likelihood in the sensory space is just a von Mises distribution:
+
+```{r}
+likelihood_sensory_fun <- function (s, kappa_sensory, x) {
+  dvon_mises(x, kappa = kappa_sensory, mu = s)
+}
+
+```
+
+Same for the prior:
+
+```{r}
+prior <- dvon_mises(grid, mu = 0, kappa = kappa_prior)
+```
+
+Plotting them:
+
+```{r}
+p_prior <- ggplot(data = data.frame(x = grid/pi*180, y = prior), aes(x = x, y = y))+geom_line()+labs(x =  expression(paste('Stimulus, ',theta)), y = expression(paste('Stimulus distribution, ', p(theta))))+ggtitle(bquote('Prior (stimulus space), '~italic(f)(theta)))
+
+p_measurement <-  ggplot(data = data.frame(x = grid/pi*180, y = dvon_mises(grid, mu = 0, kappa = kappa_sensory)), aes(x = x, y = y))+geom_line()+labs(x =  expression(paste('Measurements in sensory space, ',x)), y = bquote('Probability of measurements, '~italic(p)(tilde(x)~"|"~tilde(theta))))+ggtitle(bquote('Measurement distribution (sensory space), '~italic(p)(tilde(x)~"|"~tilde(theta))))
+```
+
+Following Wei & Stocker 2015, the mapping function is defined as a cumulative distribution function. Since our sensory space has 2pi range (for consistency, could be anything) and F(theta) has \[0, 1\] range, we multiply by 2pi and subtract pi to get to \[-pi, pi\] range.
+
+```{r}
+F_fun <- \(x) pvon_mises(x, mu = 0, kappa = kappa_prior)*2*pi-pi
+
+# a set of equally-spaced values in the stimuli space for plotting the likelihood transformation
+theta <-  seq(-pi,pi,length.out = 13)[1:12]
+
+theta_tildie <- F_fun(theta)
+
+theta_df <- data.frame(theta_tildie, theta, var = factor(1:length(theta_tildie)))
+stim_to_sens_grid <- F_fun(grid)
+
+p_mapping_function <- ggplot(data = data.frame(x = grid, y = stim_to_sens_grid), aes(x = x, y = y))+
+  geom_segment(data = theta_df, aes(x = grid[1], xend = theta, y = theta_tildie, yend = theta_tildie, color = var))+
+  geom_segment(data = theta_df, aes(x = theta, xend = theta, y = -pi, yend = theta_tildie, color = var))+
+  geom_line()+
+  labs(x = expression(paste('Stimulus, ',theta)), y =  expression(paste('Stimulus in sensory space, ',tilde(theta))))+
+  ggtitle(bquote('Mapping function, '~italic(F)(theta)))+
+  scale_x_continuous(labels = \(x) x/pi*180, breaks = seq(-180,180,90)/180*pi)+scale_y_continuous(labels = \(x) x/pi*180, breaks = seq(-180,180,90)/180*pi)+theme(legend.position = 'none')+scale_color_viridis_d()
+
+p_prior+p_measurement+p_mapping_function
+
+```
+
+The likelihoods in sensory space are then computed with kappa_sensory:
+
+```{r}
+likelihood_sensory <- sapply(theta_tildie, \(t) likelihood_sensory_fun(s = t, kappa_sensory = kappa_sensory, x = grid ));
+```
+
+The likelihoods in the stimulus space are defined via the inversion of F(theta).
+
+```{r}
+#sens_to_stim_grid <- F_fun_inv(grid)
+likelihood_stim <- sapply(theta_tildie, \(t) {
+  l <- likelihood_sensory_fun(t, kappa_sensory, stim_to_sens_grid)
+  
+  # this is the same as computing on a equal-spaced (theta tilde) grid in sensory space and then getting the corresponding grid in the stimuli space (be mindul of normalization)
+  # l <- likelihood_sensory_fun(t_tilde, kappa_sensory, grid) 
+  l*grid_step
+})
+
+
+long_likelihood_stim <- reshape2::melt(likelihood_stim)
+
+long_likelihood_stim$angle <- grid[long_likelihood_stim$Var1]
+
+long_likelihood_sensory <- reshape2::melt(likelihood_sensory)
+long_likelihood_sensory$angle <- grid[long_likelihood_sensory$Var1]
+
+p_likelihood_sensory <- ggplot(data = long_likelihood_sensory, aes(x = angle, y = value, color = factor(Var2)))+geom_line()+theme(legend.position = 'none')+labs( x =  expression(paste('Stimulus in sensory space, ',tilde(theta))), y = expression(paste('Likelihood in sensory space, ',L(tilde(theta),x))))+ scale_x_continuous(labels = \(x) x/pi*180, breaks = seq(-180,180,90)/180*pi)
+
+p_likelihood <- ggplot(data = long_likelihood_stim, aes(x = angle, y = value, color = factor(Var2)))+geom_line()+theme(legend.position = 'none')+labs( x =  expression(paste('Stimulus in stimuli space, ',theta)), y = expression(paste('Likelihood, ',L(theta,x))))+scale_x_continuous(labels = \(x) x/pi*180, breaks = seq(-180,180,90)/180*pi)
+
+p_likelihood_sensory+p_likelihood
+p_prior + p_mapping_function + p_likelihood + p_likelihood_sensory
+```
+
+# Simulating model responses
+
+For each stimulus, we would get the measurements in stimulus space. For each of these measurements, we want to know the likelihood and the posterior. And then for different decision rules (based on the likelihood or on the posterior), we'd compute the responses.
+
+We'll do it with a grid approximation, computing the response for each grid-based value, and then using it to determine responses for the random measurements. First, the likelihood is computed on a grid:
+
+```{r}
+# measurement grid, stimuli space
+x_stim <- grid
+
+# measurements in sensory space
+x_sens <- F_fun(grid)
+
+# for each measurement, compute likelihood
+likelihood_all <- sapply(x_sens, \(t) {
+  l <- likelihood_sensory_fun(t, kappa_sensory, stim_to_sens_grid)
+  l*grid_step
+})
+
+long_likelihood_grid <- reshape2::melt(likelihood_all)
+long_likelihood_grid$angle <- grid[long_likelihood_grid$Var1]
+setDT(long_likelihood_grid)
+long_likelihood_grid[,posterior:=value*prior, by = Var2]
+
+```
+
+Then for each measurement, the responses according to different readout are calculated:
+
+```{r}
+responses <- long_likelihood_grid[,.(mean_l = weighted_circ_mean(angle, value), 
+                                     max_l = angle[which.max(value)], 
+                                     map = angle[which.max(posterior)], 
+                                     mean_posterior = weighted_circ_mean(angle, posterior)), by = Var2]
+responses[,grid:=grid[Var2]]
+ggplot(long_likelihood_grid[Var2==1000], aes(x = angle, y = value))+geom_line()
+```
+
+Now, for the actual simulations, we'll use a coarser grid:
+
+```{r}
+smaller_grid <- seq(-pi, pi, length.out = 360)[1:(360-1)]
+
+grid_step <- diff(grid)[1]
+
+avg_response <- lapply(smaller_grid, function(s) {
+  x_m <- correct_angle_rad(rvon_mises(n = 10000, k = kappa_sensory, mu = s))
+  x_m_rounded <- round(x_m/grid_step)+(length(grid)+1)/2 # the measurements are rounded to the original grid
+  #x_m_rounded
+  list( stim = s, 
+      r_mean_l = circ_mean_rad(responses[x_m_rounded, mean_l]),
+      r_sd_mean_l = circ_sd_rad(responses[x_m_rounded, mean_l]),
+       r_max_l = circ_mean_rad(responses[x_m_rounded, max_l]),
+      r_sd_max_l = circ_sd_rad(responses[x_m_rounded, max_l]),
+       r_map = circ_mean_rad(responses[x_m_rounded, map]),
+      r_sd_map = circ_sd_rad(responses[x_m_rounded, map]),
+       r_mean_posterior = circ_mean_rad(responses[x_m_rounded, mean_posterior]),
+  r_sd_mean_posterior = circ_sd_rad(responses[x_m_rounded, mean_posterior]))
+})
+
+data_bias <- rbindlist(avg_response)
+
+```
+
+Then plot the outputs:
+
+```{r}
+titles <- list("r_mean_l" = 'mean likelihood', "r_max_l" = 'max likelihood', "r_map" = 'max posterior',"r_mean_posterior" = 'mean posterior')
+plot_list_resp <- lapply(names(titles), function (varname){
+  avg_error <- angle_diff_rad(data_bias[,varname, with = F][[1]], data_bias$stim)
+  p1 <- ggplot(data.frame(stim = data_bias$stim, avg_error = avg_error), aes(x = stim/pi*180, y = avg_error/pi*180))+
+    geom_hline(yintercept = 0, linetype = 2)+
+    geom_line(alpha = 0.2)+geom_smooth(span = 0.05, method='loess', se = F)+
+    labs(y = 'Average error', x = expression(paste('Stimulus, ', theta)))+
+    scale_color_continuous_sequential()
+  sd_dt <- data_bias[,c('stim',stringr::str_replace(varname, 'r_','r_sd_')), with = F]
+  names(sd_dt) <- c('stim','resp_sd')
+  p2 <- ggplot(sd_dt, aes(x = stim/pi*180, y = resp_sd/pi*180))+
+    geom_hline(yintercept = 0, linetype = 2)+
+    geom_line(alpha = 0.2)+geom_smooth(span = 0.05, method='loess', se = F)+
+    labs(y = 'Response SD', x = expression(paste('Stimulus, ', theta)))+
+    scale_color_continuous_sequential()
+  ((p1+p2)&scale_x_continuous(breaks = seq(-180,180,90)))+plot_annotation(title = sprintf('Response is %s', titles[[varname]]))
+})
+
+p_bias <- ggplot(data_bias, aes(x = stim/pi*180, y = avg_error/pi*180))+geom_hline(yintercept = 0, linetype = 2)+geom_line(alpha = 0.2)+geom_smooth(span = 0.05, method='loess', se = F)+labs(y = 'Average error', x = expression(paste('Stimulus, ', theta)))+scale_color_continuous_sequential()
+
+sd_prior <- circhelp:::vm_circ_sd(kappa_prior)/pi*180
+sd_sensory <- circhelp:::vm_circ_sd(kappa_sensory)/pi*180
+
+wrap_elements(((p_prior+ggtitle('Prior'))/(p_likelihood+ggtitle('Example likelihoods')))&scale_x_continuous(breaks = seq(-180,180,90)))+ wrap_elements(wrap_plots(lapply(plot_list_resp, wrap_elements)))+plot_layout(widths = c(1,3))+plot_annotation(title = bquote('Parameters: '~SD[prior]==.(f.round(sd_prior))~', '~SD[sens]==.(f.round(sd_sensory))))
+```
+
+Plot of posterior SD as a function of distance to the prior:
+```{r}
+ggplot(long_likelihood_grid[,weighted_circ_sd(angle, posterior), by = Var2], aes(x = grid[Var2], y = V1))+geom_line()+labs(x = 'Stimulus', y = 'Posterior SD')
+
+```

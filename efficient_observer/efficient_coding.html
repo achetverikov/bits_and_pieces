@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Efficient coding</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="efficient_coding_files/libs/clipboard/clipboard.min.js"></script>
+<script src="efficient_coding_files/libs/quarto-html/quarto.js"></script>
+<script src="efficient_coding_files/libs/quarto-html/popper.min.js"></script>
+<script src="efficient_coding_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="efficient_coding_files/libs/quarto-html/anchor.min.js"></script>
+<link href="efficient_coding_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="efficient_coding_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="efficient_coding_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="efficient_coding_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="efficient_coding_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Efficient coding</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+
+</div>
+<p>This is a short script to illustrate my problems in implementing Wei &amp; Stocker (2015) approach.</p>
+<p>Defining parameters:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>kappa_prior <span class="ot">&lt;-</span> circhelp<span class="sc">:::</span><span class="fu">vm_circ_sd_inverse_deg</span>(<span class="dv">60</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>kappa_sensory <span class="ot">&lt;-</span> circhelp<span class="sc">:::</span><span class="fu">vm_circ_sd_inverse_deg</span>(<span class="dv">7</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>grid_size <span class="ot">&lt;-</span> <span class="dv">3600</span> <span class="co"># grid for estimating likelihoods</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span>pi, pi, <span class="at">length.out =</span> grid_size)[<span class="dv">1</span><span class="sc">:</span>(grid_size<span class="dv">-1</span>)]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>grid_step <span class="ot">&lt;-</span> <span class="fu">diff</span>(grid)[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Likelihood in the sensory space is just a von Mises distribution:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>likelihood_sensory_fun <span class="ot">&lt;-</span> <span class="cf">function</span> (s, kappa_sensory, x) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dvon_mises</span>(x, <span class="at">kappa =</span> kappa_sensory, <span class="at">mu =</span> s)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Same for the prior:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">dvon_mises</span>(grid, <span class="at">mu =</span> <span class="dv">0</span>, <span class="at">kappa =</span> kappa_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Plotting them:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p_prior <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> grid<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">y =</span> prior), <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">x =</span>  <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus, '</span>,theta)), <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus distribution, '</span>, <span class="fu">p</span>(theta))))<span class="sc">+</span><span class="fu">ggtitle</span>(<span class="fu">bquote</span>(<span class="st">'Prior (stimulus space), '</span><span class="sc">~</span><span class="fu">italic</span>(f)(theta)))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>p_measurement <span class="ot">&lt;-</span>  <span class="fu">ggplot</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> grid<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">y =</span> <span class="fu">dvon_mises</span>(grid, <span class="at">mu =</span> <span class="dv">0</span>, <span class="at">kappa =</span> kappa_sensory)), <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">x =</span>  <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Measurements in sensory space, '</span>,x)), <span class="at">y =</span> <span class="fu">bquote</span>(<span class="st">'Probability of measurements, '</span><span class="sc">~</span><span class="fu">italic</span>(p)(<span class="fu">tilde</span>(x)<span class="sc">~</span><span class="st">"|"</span><span class="sc">~</span><span class="fu">tilde</span>(theta))))<span class="sc">+</span><span class="fu">ggtitle</span>(<span class="fu">bquote</span>(<span class="st">'Measurement distribution (sensory space), '</span><span class="sc">~</span><span class="fu">italic</span>(p)(<span class="fu">tilde</span>(x)<span class="sc">~</span><span class="st">"|"</span><span class="sc">~</span><span class="fu">tilde</span>(theta))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Following Wei &amp; Stocker 2015, the mapping function is defined as a cumulative distribution function. Since our sensory space has 2pi range (for consistency, could be anything) and F(theta) has [0, 1] range, we multiply by 2pi and subtract pi to get to [-pi, pi] range.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>F_fun <span class="ot">&lt;-</span> \(x) <span class="fu">pvon_mises</span>(x, <span class="at">mu =</span> <span class="dv">0</span>, <span class="at">kappa =</span> kappa_prior)<span class="sc">*</span><span class="dv">2</span><span class="sc">*</span>pi<span class="sc">-</span>pi</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a set of equally-spaced values in the stimuli space for plotting the likelihood transformation</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span>  <span class="fu">seq</span>(<span class="sc">-</span>pi,pi,<span class="at">length.out =</span> <span class="dv">13</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>theta_tildie <span class="ot">&lt;-</span> <span class="fu">F_fun</span>(theta)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>theta_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(theta_tildie, theta, <span class="at">var =</span> <span class="fu">factor</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(theta_tildie)))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>stim_to_sens_grid <span class="ot">&lt;-</span> <span class="fu">F_fun</span>(grid)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>p_mapping_function <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">x =</span> grid, <span class="at">y =</span> stim_to_sens_grid), <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> theta_df, <span class="fu">aes</span>(<span class="at">x =</span> grid[<span class="dv">1</span>], <span class="at">xend =</span> theta, <span class="at">y =</span> theta_tildie, <span class="at">yend =</span> theta_tildie, <span class="at">color =</span> var))<span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> theta_df, <span class="fu">aes</span>(<span class="at">x =</span> theta, <span class="at">xend =</span> theta, <span class="at">y =</span> <span class="sc">-</span>pi, <span class="at">yend =</span> theta_tildie, <span class="at">color =</span> var))<span class="sc">+</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus, '</span>,theta)), <span class="at">y =</span>  <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus in sensory space, '</span>,<span class="fu">tilde</span>(theta))))<span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="fu">bquote</span>(<span class="st">'Mapping function, '</span><span class="sc">~</span><span class="fu">italic</span>(F)(theta)))<span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> \(x) x<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>,<span class="dv">90</span>)<span class="sc">/</span><span class="dv">180</span><span class="sc">*</span>pi)<span class="sc">+</span><span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> \(x) x<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>,<span class="dv">90</span>)<span class="sc">/</span><span class="dv">180</span><span class="sc">*</span>pi)<span class="sc">+</span><span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'none'</span>)<span class="sc">+</span><span class="fu">scale_color_viridis_d</span>()</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>p_prior<span class="sc">+</span>p_measurement<span class="sc">+</span>p_mapping_function</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="efficient_coding_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The likelihoods in sensory space are then computed with kappa_sensory:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>likelihood_sensory <span class="ot">&lt;-</span> <span class="fu">sapply</span>(theta_tildie, \(t) <span class="fu">likelihood_sensory_fun</span>(<span class="at">s =</span> t, <span class="at">kappa_sensory =</span> kappa_sensory, <span class="at">x =</span> grid ));</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The likelihoods in the stimulus space are defined via the inversion of F(theta).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#sens_to_stim_grid &lt;- F_fun_inv(grid)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>likelihood_stim <span class="ot">&lt;-</span> <span class="fu">sapply</span>(theta_tildie, \(t) {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">&lt;-</span> <span class="fu">likelihood_sensory_fun</span>(t, kappa_sensory, stim_to_sens_grid)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># this is the same as computing on a equal-spaced (theta tilde) grid in sensory space and then getting the corresponding grid in the stimuli space (be mindul of normalization)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># l &lt;- likelihood_sensory_fun(t_tilde, kappa_sensory, grid) </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  l<span class="sc">*</span>grid_step</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>long_likelihood_stim <span class="ot">&lt;-</span> reshape2<span class="sc">::</span><span class="fu">melt</span>(likelihood_stim)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>long_likelihood_stim<span class="sc">$</span>angle <span class="ot">&lt;-</span> grid[long_likelihood_stim<span class="sc">$</span>Var1]</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>long_likelihood_sensory <span class="ot">&lt;-</span> reshape2<span class="sc">::</span><span class="fu">melt</span>(likelihood_sensory)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>long_likelihood_sensory<span class="sc">$</span>angle <span class="ot">&lt;-</span> grid[long_likelihood_sensory<span class="sc">$</span>Var1]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>p_likelihood_sensory <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> long_likelihood_sensory, <span class="fu">aes</span>(<span class="at">x =</span> angle, <span class="at">y =</span> value, <span class="at">color =</span> <span class="fu">factor</span>(Var2)))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'none'</span>)<span class="sc">+</span><span class="fu">labs</span>( <span class="at">x =</span>  <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus in sensory space, '</span>,<span class="fu">tilde</span>(theta))), <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Likelihood in sensory space, '</span>,<span class="fu">L</span>(<span class="fu">tilde</span>(theta),x))))<span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> \(x) x<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>,<span class="dv">90</span>)<span class="sc">/</span><span class="dv">180</span><span class="sc">*</span>pi)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>p_likelihood <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> long_likelihood_stim, <span class="fu">aes</span>(<span class="at">x =</span> angle, <span class="at">y =</span> value, <span class="at">color =</span> <span class="fu">factor</span>(Var2)))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'none'</span>)<span class="sc">+</span><span class="fu">labs</span>( <span class="at">x =</span>  <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus in stimuli space, '</span>,theta)), <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Likelihood, '</span>,<span class="fu">L</span>(theta,x))))<span class="sc">+</span><span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> \(x) x<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>,<span class="dv">90</span>)<span class="sc">/</span><span class="dv">180</span><span class="sc">*</span>pi)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>p_likelihood_sensory<span class="sc">+</span>p_likelihood</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="efficient_coding_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p_prior <span class="sc">+</span> p_mapping_function <span class="sc">+</span> p_likelihood <span class="sc">+</span> p_likelihood_sensory</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="efficient_coding_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="simulating-model-responses" class="level1">
+<h1>Simulating model responses</h1>
+<p>For each stimulus, we would get the measurements in stimulus space. For each of these measurements, we want to know the likelihood and the posterior. And then for different decision rules (based on the likelihood or on the posterior), we’d compute the responses.</p>
+<p>We’ll do it with a grid approximation, computing the response for each grid-based value, and then using it to determine responses for the random measurements. First, the likelihood is computed on a grid:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># measurement grid, stimuli space</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>x_stim <span class="ot">&lt;-</span> grid</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># measurements in sensory space</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>x_sens <span class="ot">&lt;-</span> <span class="fu">F_fun</span>(grid)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for each measurement, compute likelihood</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>likelihood_all <span class="ot">&lt;-</span> <span class="fu">sapply</span>(x_sens, \(t) {</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">&lt;-</span> <span class="fu">likelihood_sensory_fun</span>(t, kappa_sensory, stim_to_sens_grid)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  l<span class="sc">*</span>grid_step</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>long_likelihood_grid <span class="ot">&lt;-</span> reshape2<span class="sc">::</span><span class="fu">melt</span>(likelihood_all)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>long_likelihood_grid<span class="sc">$</span>angle <span class="ot">&lt;-</span> grid[long_likelihood_grid<span class="sc">$</span>Var1]</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">setDT</span>(long_likelihood_grid)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>long_likelihood_grid[,posterior<span class="sc">:</span><span class="er">=</span>value<span class="sc">*</span>prior, by <span class="ot">=</span> Var2]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then for each measurement, the responses according to different readout are calculated:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>responses <span class="ot">&lt;-</span> long_likelihood_grid[,.(<span class="at">mean_l =</span> <span class="fu">weighted_circ_mean</span>(angle, value), </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">max_l =</span> angle[<span class="fu">which.max</span>(value)], </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">map =</span> angle[<span class="fu">which.max</span>(posterior)], </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">mean_posterior =</span> <span class="fu">weighted_circ_mean</span>(angle, posterior)), by <span class="ot">=</span> Var2]</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>responses[,grid<span class="sc">:</span><span class="er">=</span>grid[Var2]]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(long_likelihood_grid[Var2<span class="sc">==</span><span class="dv">1000</span>], <span class="fu">aes</span>(<span class="at">x =</span> angle, <span class="at">y =</span> value))<span class="sc">+</span><span class="fu">geom_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="efficient_coding_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now, for the actual simulations, we’ll use a coarser grid:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>smaller_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span>pi, pi, <span class="at">length.out =</span> <span class="dv">360</span>)[<span class="dv">1</span><span class="sc">:</span>(<span class="dv">360-1</span>)]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>grid_step <span class="ot">&lt;-</span> <span class="fu">diff</span>(grid)[<span class="dv">1</span>]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>avg_response <span class="ot">&lt;-</span> <span class="fu">lapply</span>(smaller_grid, <span class="cf">function</span>(s) {</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  x_m <span class="ot">&lt;-</span> <span class="fu">correct_angle_rad</span>(<span class="fu">rvon_mises</span>(<span class="at">n =</span> <span class="dv">10000</span>, <span class="at">k =</span> kappa_sensory, <span class="at">mu =</span> s))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  x_m_rounded <span class="ot">&lt;-</span> <span class="fu">round</span>(x_m<span class="sc">/</span>grid_step)<span class="sc">+</span>(<span class="fu">length</span>(grid)<span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span> <span class="co"># the measurements are rounded to the original grid</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#x_m_rounded</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>( <span class="at">stim =</span> s, </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">r_mean_l =</span> <span class="fu">circ_mean_rad</span>(responses[x_m_rounded, mean_l]),</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">r_sd_mean_l =</span> <span class="fu">circ_sd_rad</span>(responses[x_m_rounded, mean_l]),</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">r_max_l =</span> <span class="fu">circ_mean_rad</span>(responses[x_m_rounded, max_l]),</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">r_sd_max_l =</span> <span class="fu">circ_sd_rad</span>(responses[x_m_rounded, max_l]),</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">r_map =</span> <span class="fu">circ_mean_rad</span>(responses[x_m_rounded, map]),</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">r_sd_map =</span> <span class="fu">circ_sd_rad</span>(responses[x_m_rounded, map]),</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">r_mean_posterior =</span> <span class="fu">circ_mean_rad</span>(responses[x_m_rounded, mean_posterior]),</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_sd_mean_posterior =</span> <span class="fu">circ_sd_rad</span>(responses[x_m_rounded, mean_posterior]))</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>data_bias <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(avg_response)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then plot the outputs:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>titles <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"r_mean_l"</span> <span class="ot">=</span> <span class="st">'mean likelihood'</span>, <span class="st">"r_max_l"</span> <span class="ot">=</span> <span class="st">'max likelihood'</span>, <span class="st">"r_map"</span> <span class="ot">=</span> <span class="st">'max posterior'</span>,<span class="st">"r_mean_posterior"</span> <span class="ot">=</span> <span class="st">'mean posterior'</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>plot_list_resp <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(titles), <span class="cf">function</span> (varname){</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  avg_error <span class="ot">&lt;-</span> <span class="fu">angle_diff_rad</span>(data_bias[,varname, <span class="at">with =</span> F][[<span class="dv">1</span>]], data_bias<span class="sc">$</span>stim)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">stim =</span> data_bias<span class="sc">$</span>stim, <span class="at">avg_error =</span> avg_error), <span class="fu">aes</span>(<span class="at">x =</span> stim<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">y =</span> avg_error<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>))<span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>)<span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span><span class="fu">geom_smooth</span>(<span class="at">span =</span> <span class="fl">0.05</span>, <span class="at">method=</span><span class="st">'loess'</span>, <span class="at">se =</span> F)<span class="sc">+</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">'Average error'</span>, <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus, '</span>, theta)))<span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_continuous_sequential</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  sd_dt <span class="ot">&lt;-</span> data_bias[,<span class="fu">c</span>(<span class="st">'stim'</span>,stringr<span class="sc">::</span><span class="fu">str_replace</span>(varname, <span class="st">'r_'</span>,<span class="st">'r_sd_'</span>)), with <span class="ot">=</span> F]</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(sd_dt) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'stim'</span>,<span class="st">'resp_sd'</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(sd_dt, <span class="fu">aes</span>(<span class="at">x =</span> stim<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">y =</span> resp_sd<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>))<span class="sc">+</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>)<span class="sc">+</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span><span class="fu">geom_smooth</span>(<span class="at">span =</span> <span class="fl">0.05</span>, <span class="at">method=</span><span class="st">'loess'</span>, <span class="at">se =</span> F)<span class="sc">+</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">'Response SD'</span>, <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus, '</span>, theta)))<span class="sc">+</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_continuous_sequential</span>()</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  ((p1<span class="sc">+</span>p2)<span class="sc">&amp;</span><span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>,<span class="dv">90</span>)))<span class="sc">+</span><span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="fu">sprintf</span>(<span class="st">'Response is %s'</span>, titles[[varname]]))</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>p_bias <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(data_bias, <span class="fu">aes</span>(<span class="at">x =</span> stim<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>, <span class="at">y =</span> avg_error<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span>))<span class="sc">+</span><span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>)<span class="sc">+</span><span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)<span class="sc">+</span><span class="fu">geom_smooth</span>(<span class="at">span =</span> <span class="fl">0.05</span>, <span class="at">method=</span><span class="st">'loess'</span>, <span class="at">se =</span> F)<span class="sc">+</span><span class="fu">labs</span>(<span class="at">y =</span> <span class="st">'Average error'</span>, <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">'Stimulus, '</span>, theta)))<span class="sc">+</span><span class="fu">scale_color_continuous_sequential</span>()</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>sd_prior <span class="ot">&lt;-</span> circhelp<span class="sc">:::</span><span class="fu">vm_circ_sd</span>(kappa_prior)<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>sd_sensory <span class="ot">&lt;-</span> circhelp<span class="sc">:::</span><span class="fu">vm_circ_sd</span>(kappa_sensory)<span class="sc">/</span>pi<span class="sc">*</span><span class="dv">180</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">wrap_elements</span>(((p_prior<span class="sc">+</span><span class="fu">ggtitle</span>(<span class="st">'Prior'</span>))<span class="sc">/</span>(p_likelihood<span class="sc">+</span><span class="fu">ggtitle</span>(<span class="st">'Example likelihoods'</span>)))<span class="sc">&amp;</span><span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>,<span class="dv">90</span>)))<span class="sc">+</span> <span class="fu">wrap_elements</span>(<span class="fu">wrap_plots</span>(<span class="fu">lapply</span>(plot_list_resp, wrap_elements)))<span class="sc">+</span><span class="fu">plot_layout</span>(<span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))<span class="sc">+</span><span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="fu">bquote</span>(<span class="st">'Parameters: '</span><span class="sc">~</span>SD[prior]<span class="sc">==</span>.(<span class="fu">f.round</span>(sd_prior))<span class="sc">~</span><span class="st">', '</span><span class="sc">~</span>SD[sens]<span class="sc">==</span>.(<span class="fu">f.round</span>(sd_sensory))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Scale for x is already present.
+Adding another scale for x, which will replace the existing scale.
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="efficient_coding_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Plot of posterior SD as a function of distance to the prior:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(long_likelihood_grid[,<span class="fu">weighted_circ_sd</span>(angle, posterior), <span class="at">by =</span> Var2], <span class="fu">aes</span>(<span class="at">x =</span> grid[Var2], <span class="at">y =</span> V1))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Stimulus'</span>, <span class="at">y =</span> <span class="st">'Posterior SD'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="efficient_coding_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
